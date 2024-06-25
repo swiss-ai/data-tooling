@@ -101,6 +101,8 @@ class PIIFormatter(BaseFormatter):
             text = self.emails_replacer.replace(text)
         if self.remove_ips:
             text = self.ip_replacer.replace(text)
+
+        #need to remove phone nr etc first.
         if self.remove_eu:
             for eu_replacer in self.eu_replacers:
                 text = eu_replacer.replace(text)
