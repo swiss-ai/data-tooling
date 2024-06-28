@@ -88,58 +88,57 @@ if __name__ == "__main__":
                 "cache_dir": os.environ["HF_BASE"],
                 "trust_remote_code": True,
             },
-            progress=True,
             adapter=_multilegal_adapter,
             limit=1000,
         )
 
-        # main_processing_executor = LocalPipelineExecutor(
-        #     pipeline=[
-        #         INPUT_READER,
-        #         TokensCounter(),
-        #         LengthCounter(),
-        #         SwissAIJsonlWriter(
-        #             output_folder=f'/{os.environ["HF_BASE"]}/multilegal_pile/jsonl'
-        #         ),
-        #     ],
-        #     tasks=16,
-        #     workers=1,
-        #     start_method="spawn",
-        #     logging_dir=f'/{os.environ["HF_BASE"]}/multilegal_pile/logging',
-        # )
-        #
-        # main_processing_executor.run()
+        main_processing_executor = LocalPipelineExecutor(
+            pipeline=[
+                INPUT_READER,
+                TokensCounter(),
+                LengthCounter(),
+                SwissAIJsonlWriter(
+                    output_folder=f'/{os.environ["HF_BASE"]}/multilegal_pile/jsonl'
+                ),
+            ],
+            tasks=16,
+            workers=1,
+            start_method="spawn",
+            logging_dir=f'/{os.environ["HF_BASE"]}/multilegal_pile/logging',
+        )
 
-        minhash_config = MinhashConfig(use_64bit_hashes=True)
-        # TOTAL_TASKS = 16
-        # stage1 = LocalPipelineExecutor(
-        #     pipeline=[
-        #         JsonlReader(
-        #             data_folder=f'/{os.environ["HF_BASE"]}/multilegal_pile/jsonl'
-        #         ),
-        #         MinhashDedupSignature(
-        #             output_folder=f'{os.environ["HF_BASE"]}/multilegal_pile/signatures',
-        #             config=minhash_config,
-        #         ),
-        #     ],
-        #     tasks=TOTAL_TASKS,
-        #     logging_dir=f'/{os.environ["HF_BASE"]}/multilegal_pile/logging/signatures',
-        #     # depends=main_processing_executor,
-        # )
-        # stage1.run()
-        # stage2 = LocalPipelineExecutor(
-        #     pipeline=[
-        #         MinhashDedupBuckets(
-        #             input_folder=f'{os.environ["HF_BASE"]}/multilegal_pile/signatures',
-        #             output_folder=f'{os.environ["HF_BASE"]}/multilegal_pile/buckets',
-        #             config=MinhashConfig(use_64bit_hashes=True),
-        #         ),
-        #     ],
-        #     tasks=minhash_config.num_buckets * 50,
-        #     logging_dir=f'{os.environ["HF_BASE"]}/multilegal_pile/logging/buckets',
-        #     depends=stage1,
-        # )
-        # stage2.run()
+        main_processing_executor.run()
+
+        minhash_config = MinhashConfig()
+        TOTAL_TASKS = 16
+        stage1 = LocalPipelineExecutor(
+            pipeline=[
+                JsonlReader(
+                    data_folder=f'/{os.environ["HF_BASE"]}/multilegal_pile/jsonl'
+                ),
+                MinhashDedupSignature(
+                    output_folder=f'{os.environ["HF_BASE"]}/multilegal_pile/signatures',
+                    config=minhash_config,
+                ),
+            ],
+            tasks=TOTAL_TASKS,
+            logging_dir=f'/{os.environ["HF_BASE"]}/multilegal_pile/logging/signatures',
+            # depends=main_processing_executor,
+        )
+        stage1.run()
+        stage2 = LocalPipelineExecutor(
+            pipeline=[
+                MinhashDedupBuckets(
+                    input_folder=f'{os.environ["HF_BASE"]}/multilegal_pile/signatures',
+                    output_folder=f'{os.environ["HF_BASE"]}/multilegal_pile/buckets',
+                    config=MinhashConfig(),
+                ),
+            ],
+            tasks=minhash_config.num_buckets * 50,
+            logging_dir=f'{os.environ["HF_BASE"]}/multilegal_pile/logging/buckets',
+            depends=stage1,
+        )
+        stage2.run()
         stage3 = LocalPipelineExecutor(
             pipeline=[
                 MinhashDedupCluster(
@@ -153,23 +152,23 @@ if __name__ == "__main__":
             # depends=stage2,
         )
         stage3.run()
-        # stage4 = LocalPipelineExecutor(
-        #     pipeline=[
-        #         INPUT_READER,
-        #         TokensCounter(),
-        #         MinhashDedupFilter(
-        #             input_folder=f'{os.environ["HF_BASE"]}/multilegal_pile/remove_ids'
-        #         ),
-        #         SwissAIJsonlWriter(
-        #             output_folder=f'/{os.environ["HF_BASE"]}/multilegal_pile/jsonl'
-        #         ),
-        #     ],
-        #     tasks=TOTAL_TASKS,
-        #     logging_dir=f'{os.environ["HF_BASE"]}/multilegal_pile/filtering',
-        #     # depends=stage3,
-        # )
-        #
-        # stage4.run()
+        stage4 = LocalPipelineExecutor(
+            pipeline=[
+                INPUT_READER,
+                TokensCounter(),
+                MinhashDedupFilter(
+                    input_folder=f'{os.environ["HF_BASE"]}/multilegal_pile/remove_ids'
+                ),
+                SwissAIJsonlWriter(
+                    output_folder=f'/{os.environ["HF_BASE"]}/multilegal_pile/jsonl'
+                ),
+            ],
+            tasks=TOTAL_TASKS,
+            logging_dir=f'{os.environ["HF_BASE"]}/multilegal_pile/filtering',
+            # depends=stage3,
+        )
+
+        stage4.run()
 
     finally:
         stop_event.set()
