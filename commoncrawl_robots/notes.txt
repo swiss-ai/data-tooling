@@ -1,0 +1,24 @@
+ssh bristen 'source ~/localenv/bin/activate; python3 /capstor/store/cscs/swissai/a06/datasets_raw/commoncrawl_kyle/build_db.py --crawl_fullfilename=/capstor/store/cscs/swissai/a06/datasets_raw/commoncrawl_kyle/CC-MAIN-2021-43 --out_dir=/capstor/store/cscs/swissai/a06/datasets_raw/commoncrawl_kyle/databases --db_version=1'
+ssh bristen 'nohup source ~/localenv/bin/activate; python3 /capstor/store/cscs/swissai/a06/datasets_raw/commoncrawl_kyle/build_db.py --crawl_fullfilename=/capstor/store/cscs/swissai/a06/datasets_raw/commoncrawl_kyle/CC-MAIN-2024-26 --out_dir=/capstor/store/cscs/swissai/a06/datasets_raw/commoncrawl_kyle/databases --db_version=1' &
+python3 /capstor/store/cscs/swissai/a06/datasets_raw/commoncrawl_kyle/build_db.py --crawl_fullfilename=/capstor/store/cscs/swissai/a06/datasets_raw/commoncrawl_kyle/CC-MAIN-2021-43 --out_dir=/capstor/store/cscs/swissai/a06/datasets_raw/commoncrawl_kyle/databases --db_version=1
+nohup python3 /capstor/store/cscs/swissai/a06/datasets_raw/commoncrawl_kyle/build_db.py --crawl_fullfilename=/capstor/store/cscs/swissai/a06/datasets_raw/commoncrawl_kyle/CC-MAIN-2023-23 --out_dir=/capstor/store/cscs/swissai/a06/datasets_raw/commoncrawl_kyle/databases --db_version=1
+
+python3 /capstor/store/cscs/swissai/a06/datasets_raw/commoncrawl_kyle/build_db.py --crawl_fullfilename=/capstor/store/cscs/swissai/a06/datasets_raw/commoncrawl_kyle/CC-MAIN-2022-33 --out_dir=/capstor/store/cscs/swissai/a06/datasets_raw/commoncrawl_kyle/databases --db_version=1 &
+python3 /capstor/store/cscs/swissai/a06/datasets_raw/commoncrawl_kyle/build_db.py --crawl_fullfilename=/capstor/store/cscs/swissai/a06/datasets_raw/commoncrawl_kyle/CC-MAIN-2022-27 --out_dir=/capstor/store/cscs/swissai/a06/datasets_raw/commoncrawl_kyle/databases --db_version=1
+python3 /capstor/store/cscs/swissai/a06/datasets_raw/commoncrawl_kyle/build_db.py --crawl_fullfilename=/capstor/store/cscs/swissai/a06/datasets_raw/commoncrawl_kyle/CC-MAIN-2024-38 --out_dir=/capstor/store/cscs/swissai/a06/datasets_raw/commoncrawl_kyle/databases --db_version=1 &
+
+IDENT=CC-MAIN-2022-27 python3 /capstor/store/cscs/swissai/a06/datasets_raw/commoncrawl_kyle/build_db.py --crawl_fullfilename=/capstor/store/cscs/swissai/a06/datasets_raw/commoncrawl_kyle/$IDENT --out_dir=/capstor/store/cscs/swissai/a06/datasets_raw/commoncrawl_kyle/databases --db_version=1 &
+
+python3 /capstor/store/cscs/swissai/a06/datasets_raw/commoncrawl_kyle/build_db.py --crawl_fullfilename=/capstor/store/cscs/swissai/a06/datasets_raw/commoncrawl_kyle/CC-MAIN-2024-10 --out_dir=/capstor/store/cscs/swissai/a06/datasets_raw/commoncrawl_kyle/databases --db_version=1 &
+
+
+# Performance tuning
+
+```
+python3 -m cProfile -o build_db.prof build_db.py
+snakeviz main.prof
+```
+
+rsync -r bristen:/capstor/store/cscs/swissai/a06/datasets_raw/commoncrawl_kyle/CC-MAIN-2022-23 /Users/kylematoba/cscs/commoncrawl-robotstxt-main/crawls
+
+rsync -r -vv bristen:/capstor/store/cscs/swissai/a06/datasets_raw/commoncrawl_kyle/CC-MAIN-2022-27 /Users/kylematoba/cscs/commoncrawl-robotstxt-main/crawls
